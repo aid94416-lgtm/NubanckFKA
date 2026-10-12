@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-black select-none">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nubank - Aplicativo Oficial</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            nu: {
+              purple: '#820AD1',
+              darkPurple: '#5900A0',
+              vibrantPurple: '#8A19D6',
+              deepDark: '#121214',
+              cardBg: '#1C1C1E',
+              cardBgHover: '#2C2C2E',
+              lightPurple: '#281138',
+              accent: '#A020F0',
+              grayText: '#A1A1AA',
+              softBg: '#09090B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulseSlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.05); }
+    }
+    .animate-pulse-slow {
+      animation: pulseSlow 2s infinite ease-in-out;
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 1.1s linear infinite;
+    }
+    @keyframes scanLine {
+      0% { top: 10%; opacity: 0.2; }
+      50% { top: 80%; opacity: 0.9; }
+      100% { top: 10%; opacity: 0.2; }
+    }
+    .animate-scan-line {
+      animation: scanLine 1.8s infinite ease-in-out;
+    }
+    .key-press:active {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body class="bg-black text-white h-full flex items-center justify-center sm:py-4">
+
+  <!-- Mobile Frame Container -->
+  <div class="w-full max-w-md h-full sm:h-[844px] bg-nu-deepDark sm:rounded-[44px] shadow-2xl relative overflow-hidden flex flex-col border-0 sm:border-[8px] sm:border-zinc-800">
+
+    <div class="relative flex-1 bg-nu-deepDark overflow-hidden flex flex-col">
+
+      <section id="splashScreen" class="hidden absolute inset-0 bg-nu-purple flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+        <div class="flex flex-col items-center animate-pulse-slow">
+          <svg class="w-24 h-24 text-white fill-current" viewBox="0 0 24 24">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.18 15.632h-2.316v-5.118c0-1.288-.696-1.92-1.748-1.92-1.127 0-1.897.747-1.897 2.08v4.958H8.899V8.368h2.321v1.166c.618-.89 1.637-1.328 2.802-1.328 2.012 0 3.158 1.253 3.158 3.528v3.898z"/>
+          </svg>
+          <span class="text-white text-2xl font-bold tracking-tight mt-3">nubank</span>
+        </div>
+        <div class="absolute bottom-12">
+          <div class="w-7 h-7 border-3 border-white/20 border-t-white rounded-full animate-spin-slow"></div>
+        </div>
+      </section>
+
+      <section id="loginScreen" class="hidden absolute inset-0 bg-nu-deepDark flex flex-col justify-between p-6 z-40 text-white overflow-y-auto hide-scrollbar">
+        <div class="pt-4">
+          <div class="flex justify-between items-center mb-8">
+            <svg class="w-10 h-10 text-nu-purple fill-current" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.18 15.632h-2.316v-5.118c0-1.288-.696-1.92-1.748-1.92-1.127 0-1.897.747-1.897 2.08v4.958H8.899V8.368h2.321v1.166c.618-.89 1.637-1.328 2.802-1.328 2.012 0 3.158 1.253 3.158 3.528v3.898z"/>
+            </svg>
+            <button onclick="showToast('Central de ajuda disponível 24h')" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-xs font-bold">
+              ?
+            </button>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 text-white">Boas-vindas ao Nubank</h1>
+          <p class="text-zinc-400 text-sm mb-6">Digite seu CPF para acessar sua conta digital.</p>
+
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs uppercase font-bold text-zinc-400 tracking-wider mb-1.5 block">CPF</label>
+              <div class="relative">
+                <input type="text" id="loginCpfInput" placeholder="000.000.000-00" maxlength="14" value="123.456.789-00" oninput="maskCPF(this)" class="w-full bg-nu-cardBg border border-zinc-800 focus:border-nu-purple rounded-2xl px-4 py-3.5 text-white placeholder-zinc-600 focus:outline-none text-base tracking-wide transition-all">
+                <i class="fa-solid fa-id-card absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-xs uppercase font-bold text-zinc-400 tracking-wider block">Senha do App</label>
+                <button type="button" onclick="showToast('Link de recuperação enviado por e-mail')" class="text-xs text-purple-400 font-semibold hover:underline">Esqueci a senha</button>
+              </div>
+              <div class="relative">
+                <input type="password" id="loginPasswordInput" placeholder="••••••••" value="123456" class="w-full bg-nu-cardBg border border-zinc-800 focus:border-nu-purple rounded-2xl px-4 py-3.5 text-white placeholder-zinc-600 focus:outline-none text-base tracking-wide transition-all">
+                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300">
+                  <i id="passwordEyeIcon" class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button onclick="handleLogin()" class="w-full bg-nu-purple hover:bg-nu-darkPurple text-white font-bold py-4 rounded-full transition-all text-base shadow-lg active:scale-95 flex items-center justify-center gap-2 mt-2">
+              <span>Entrar na Conta</span>
+              <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pb-4 pt-6 space-y-3">
+          <button onclick="triggerFaceIDScan()" class="w-full bg-nu-cardBg border border-zinc-800 hover:border-nu-purple rounded-2xl py-3.5 px-4 flex items-center justify-between text-white font-semibold hover:bg-zinc-800 transition-all active:scale-95">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-nu-lightPurple flex items-center justify-center text-purple-300">
+                <i class="fa-solid fa-face-smile text-lg"></i>
+              </div>
+              <div class="text-left">
+                <p class="text-sm font-bold text-white">Usar Face ID / Biometria</p>
+                <p class="text-[11px] text-zinc-400">Acesso instantâneo e seguro</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-xs text-zinc-600"></i>
+          </button>
+        </div>
+      </section>
+
+      <section id="faceIdModal" class="hidden absolute inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div class="relative w-32 h-32 mb-6 flex items-center justify-center">
+          <div class="absolute inset-0 border-2 border-purple-500/30 rounded-3xl animate-pulse"></div>
+          <div class="absolute inset-x-2 h-0.5 bg-purple-400 shadow-[0_0_12px_#A020F0] animate-scan-line"></div>
+          <i class="fa-solid fa-face-smile text-6xl text-purple-400 animate-pulse"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-1">Reconhecimento Facial</h3>
+        <p id="faceIdStatusText" class="text-xs text-zinc-400 max-w-xs mb-6">Posicione o rosto para autenticar no Nubank...</p>
+        <button onclick="cancelFaceID()" class="text-xs text-zinc-500 hover:text-white border border-zinc-800 px-5 py-2 rounded-full">
+          Cancelar
+        </button>
+      </section>
+
+      <div id="dashboardApp" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+        
+        <div class="flex-1 overflow-y-auto hide-scrollbar pb-20">
+          
+          <!-- TAB 1: HOME -->
+          <div id="tabHome" class="tab-content">
+            <!-- Header with "Olá, [Nome]" editable on click -->
+            <div class="bg-nu-purple text-white p-5 pt-6 pb-8 rounded-b-3xl shadow-md">
+              <div class="flex justify-between items-center mb-6">
+                <div onclick="openProfileModal()" class="w-11 h-11 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold text-white border border-white/10 cursor-pointer">
+                  <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex items-center gap-4">
+                  <button onclick="toggleBalanceVisibility()" class="text-xl opacity-90 hover:opacity-100" title="Ocultar/Exibir Saldo">
+                    <i id="eyeIcon" class="fa-regular fa-eye"></i>
+                  </button>
+                  <button onclick="showToast('Central de Ajuda Nubank')" class="text-xl opacity-90 hover:opacity-100" title="Ajuda">
+                    <i class="fa-regular fa-circle-question"></i>
+                  </button>
+                  <button onclick="openProfileModal()" class="text-xl opacity-90 hover:opacity-100" title="Perfil">
+                    <i class="fa-solid fa-sliders"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- "Olá, [Name]" Display (Click to edit) -->
+              <div onclick="promptEditName()" class="inline-flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" title="Clique para alterar seu nome">
+                <span id="headerGreeting" class="text-xl font-extrabold text-white tracking-wide">Olá, Natan</span>
+              </div>
+            </div>
+
+            <div class="px-5 -mt-5">
+              <div class="bg-nu-cardBg rounded-2xl p-5 shadow-lg border border-zinc-800/80">
+                <!-- Clean Account Balance Display Only (Click to edit) -->
+                <div onclick="promptEditBalance()" class="py-1 px-2 -mx-2 rounded-xl cursor-pointer hover:bg-zinc-800/60 transition-all flex items-center justify-between" title="Clique para alterar seu saldo">
+                  <span id="balanceValue" class="text-2xl sm:text-3xl font-extrabold text-white hover:text-purple-300 transition-colors">R$ 2.450,80</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Grid -->
+            <div class="mt-6 px-5">
+              <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+                <button onclick="openPixArea()" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-brands fa-pix text-nu-purple text-2xl"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Pix</span>
+                </button>
+
+                <button onclick="openPixTransferModal()" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Transferir</span>
+                </button>
+
+                <button onclick="showToast('Pagar boletos ou QR Code')" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-solid fa-barcode"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Pagar</span>
+                </button>
+
+                <button onclick="showToast('Depósitos por Pix ou Boleto')" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-solid fa-circle-arrow-down"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Depositar</span>
+                </button>
+
+                <button onclick="showToast('Recarga de celular')" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Recarga</span>
+                </button>
+
+                <button onclick="showToast('Caixinhas do Nubank')" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-solid fa-box text-nu-purple"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Caixinhas</span>
+                </button>
+
+                <button onclick="showToast('Empréstimos disponíveis')" class="flex flex-col items-center gap-2 min-w-[72px] group">
+                  <div class="w-16 h-16 bg-nu-cardBg rounded-full flex items-center justify-center text-xl text-white group-hover:bg-zinc-800 transition-all shadow-md border border-zinc-800">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                  </div>
+                  <span class="text-xs font-semibold text-zinc-200 text-center">Empréstimo</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Virtual Cards Link -->
+            <div class="mt-4 px-5">
+              <div onclick="openCardsModal()" class="bg-nu-cardBg rounded-2xl p-4 flex items-center gap-3 cursor-pointer hover:bg-zinc-800 transition-all border border-zinc-800/80">
+                <i class="fa-regular fa-credit-card text-zinc-300 text-lg"></i>
+                <span class="text-sm font-semibold text-zinc-100">Meus cartões</span>
+              </div>
+            </div>
+
+            <!-- Account Summary Widgets -->
+            <div class="mt-5 px-5 space-y-4">
+              <!-- Credit Card Box -->
+              <div class="bg-nu-cardBg p-5 rounded-2xl shadow-sm border border-zinc-800/80 space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-zinc-100 font-semibold text-base">Cartão de crédito</span>
+                  <i class="fa-solid fa-chevron-right text-xs text-zinc-600"></i>
+                </div>
+                <p class="text-xs text-zinc-400">Fatura atual</p>
+                <p class="text-xl font-bold text-white">R$ 482,50</p>
+                <p class="text-xs text-zinc-400">Limite disponível: <span class="font-semibold text-zinc-200">R$ 4.200,00</span></p>
+              </div>
+
+              <!-- Caixinhas Box -->
+              <div class="bg-nu-cardBg p-5 rounded-2xl shadow-sm border border-zinc-800/80 flex justify-between items-center cursor-pointer hover:border-nu-purple transition-all" onclick="showToast('Caixinhas renderam R$ 12,40 este mês')">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-box text-nu-purple"></i>
+                    <span class="font-semibold text-zinc-100 text-sm">Caixinhas</span>
+                  </div>
+                  <p class="text-xs text-zinc-400">R$ 1.000,00 guardados a 100% do CDI</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-zinc-600"></i>
+              </div>
+
+              <!-- Recent Transactions List -->
+              <div class="bg-nu-cardBg p-5 rounded-2xl shadow-sm border border-zinc-800/80 space-y-4">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-zinc-100 text-base">Histórico</span>
+                  <span onclick="switchTab('tabExtrato')" class="text-xs text-purple-400 font-semibold cursor-pointer">Ver tudo</span>
+                </div>
+
+                <div id="homeTransactionList" class="space-y-3">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: INVEST & CRIPTO -->
+          <div id="tabInvest" class="tab-content hidden p-5 space-y-6">
+            <h2 class="text-2xl font-bold text-white">Investimentos & Cripto</h2>
+            <div class="bg-nu-cardBg p-5 rounded-2xl border border-zinc-800 space-y-2">
+              <span class="text-xs text-zinc-400 font-medium uppercase tracking-wider">Total em Investimentos</span>
+              <p class="text-2xl font-bold text-white">R$ 3.850,00</p>
+              <span class="text-xs text-green-400 font-semibold">+ 1,02% este mês (100% CDI)</span>
+            </div>
+          </div>
+
+          <!-- TAB 3: SHOPPING -->
+          <div id="tabShopping" class="tab-content hidden p-5 space-y-6">
+            <h2 class="text-2xl font-bold text-white">Shopping Nu</h2>
+            <p class="text-xs text-zinc-400 -mt-4">Compre nas lojas parceiras com cashback</p>
+          </div>
+
+          <!-- TAB 4: SEGUROS -->
+          <div id="tabSeguros" class="tab-content hidden p-5 space-y-6">
+            <h2 class="text-2xl font-bold text-white">Seguros</h2>
+          </div>
+
+          <!-- TAB 5: EXTRATO -->
+          <div id="tabExtrato" class="tab-content hidden p-5 space-y-6">
+            <h2 class="text-2xl font-bold text-white">Extrato Completo</h2>
+            <div id="fullTransactionList" class="space-y-3"></div>
+          </div>
+
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="absolute bottom-0 left-0 right-0 bg-nu-deepDark/95 backdrop-blur-md border-t border-zinc-800 px-4 py-2.5 flex justify-around items-center z-40">
+          <button onclick="switchTab('tabHome')" id="navHome" class="flex flex-col items-center gap-1 text-purple-400">
+            <i class="fa-solid fa-arrow-right-arrow-left text-lg"></i>
+            <span class="text-[10px] font-medium">Início</span>
+          </button>
+          <button onclick="switchTab('tabInvest')" id="navInvest" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300">
+            <i class="fa-solid fa-dollar-sign text-lg"></i>
+            <span class="text-[10px] font-medium">Cripto</span>
+          </button>
+          <button onclick="switchTab('tabShopping')" id="navShopping" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300">
+            <i class="fa-solid fa-bag-shopping text-lg"></i>
+            <span class="text-[10px] font-medium">Shopping</span>
+          </button>
+          <button onclick="switchTab('tabSeguros')" id="navSeguros" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300">
+            <i class="fa-solid fa-shield-halved text-lg"></i>
+            <span class="text-[10px] font-medium">Seguros</span>
+          </button>
+          <button onclick="switchTab('tabExtrato')" id="navExtrato" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300">
+            <i class="fa-solid fa-list text-lg"></i>
+            <span class="text-[10px] font-medium">Extrato</span>
+          </button>
+        </div>
+      </div>
+
+      <section id="pixAreaModal" class="hidden absolute inset-0 bg-nu-deepDark z-50 flex flex-col">
+        <div class="p-4 flex items-center justify-between border-b border-zinc-800">
+          <button onclick="closePixArea()" class="text-zinc-400 text-xl w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+          <span class="font-bold text-white text-base">Área Pix</span>
+          <div class="w-8"></div>
+        </div>
+
+        <div class="p-6 flex-1 overflow-y-auto">
+          <h2 class="text-2xl font-bold text-white mb-6">Envie e receba pagamentos a qualquer hora</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div onclick="openPixTransferModal()" class="bg-nu-cardBg p-5 rounded-2xl flex flex-col gap-3 cursor-pointer hover:border-nu-purple border border-zinc-800">
+              <i class="fa-solid fa-paper-plane text-nu-purple text-2xl"></i>
+              <span class="font-bold text-white text-sm">Transferir</span>
+            </div>
+            <div onclick="showToast('Pix Copia e Cola pronto')" class="bg-nu-cardBg p-5 rounded-2xl flex flex-col gap-3 cursor-pointer hover:border-nu-purple border border-zinc-800">
+              <i class="fa-solid fa-copy text-nu-purple text-2xl"></i>
+              <span class="font-bold text-white text-sm">Pix Copia e Cola</span>
+            </div>
+            <div onclick="showToast('Leitor QR Code aberto')" class="bg-nu-cardBg p-5 rounded-2xl flex flex-col gap-3 cursor-pointer hover:border-nu-purple border border-zinc-800">
+              <i class="fa-solid fa-qrcode text-nu-purple text-2xl"></i>
+              <span class="font-bold text-white text-sm">Ler QR Code</span>
+            </div>
+            <div onclick="showToast('Cobrança Pix criada')" class="bg-nu-cardBg p-5 rounded-2xl flex flex-col gap-3 cursor-pointer hover:border-nu-purple border border-zinc-800">
+              <i class="fa-solid fa-hand-holding-dollar text-nu-purple text-2xl"></i>
+              <span class="font-bold text-white text-sm">Cobrar</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pixTransferModal" class="hidden absolute inset-0 bg-nu-deepDark z-50 flex flex-col">
+        <div class="p-4 flex items-center justify-between border-b border-zinc-800">
+          <button onclick="closePixTransferModal()" class="text-zinc-400 text-xl w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
+          <span class="font-bold text-white text-base">Nova Transferência</span>
+          <div class="w-8"></div>
+        </div>
+
+        <div class="p-6 flex-1 overflow-y-auto space-y-6">
+          <div>
+            <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wide block mb-1">Qual o valor da transferência?</label>
+            <div class="relative">
+              <span class="absolute left-0 top-1/2 -translate-y-1/2 text-3xl font-bold text-zinc-500">R$</span>
+              <input type="text" id="transferAmountInput" placeholder="0,00" class="w-full bg-transparent pl-12 pr-4 py-2 text-4xl font-bold text-white border-b-2 border-nu-purple focus:outline-none">
+            </div>
+            <p class="text-xs text-zinc-400 mt-2">Saldo disponível: <span id="transferModalAvailableBalance" class="font-semibold text-zinc-200">R$ 2.450,80</span></p>
+          </div>
+
+          <div class="space-y-4 pt-4">
+            <input type="text" id="transferNameInput" placeholder="Nome do Destinatário" value="Maria Silva Santos" class="w-full bg-nu-cardBg border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none">
+            <input type="text" id="transferCpfInput" placeholder="CPF Destinatário" value="***.458.912-**" class="w-full bg-nu-cardBg border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none">
+            <input type="text" id="transferBankInput" placeholder="Instituição" value="Itaú Unibanco S.A." class="w-full bg-nu-cardBg border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-zinc-800">
+          <button onclick="requestPixPassword()" class="w-full bg-nu-purple text-white font-bold py-4 rounded-full text-base shadow-lg hover:bg-nu-darkPurple">
+            Transferir Agora
+          </button>
+        </div>
+      </section>
+
+      <section id="pixPinModal" class="hidden absolute inset-0 bg-nu-deepDark z-50 flex flex-col justify-between p-6">
+        <div class="flex items-center justify-between">
+          <button onclick="cancelPixPin()" class="text-zinc-400 text-xl w-8 h-8 flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Segurança Nubank</span>
+          <div class="w-8"></div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center text-center my-auto space-y-6">
+          <div class="w-14 h-14 bg-nu-lightPurple rounded-full flex items-center justify-center text-nu-purple text-2xl shadow-inner">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+
+          <div>
+            <h3 class="text-xl font-bold text-white mb-1">Digite sua senha de 4 dígitos</h3>
+            <p class="text-xs text-zinc-400 max-w-xs">Informe a senha do cartão/transação do Nubank para confirmar o Pix de <span id="pinModalAmountText" class="font-bold text-white">R$ 0,00</span></p>
+          </div>
+
+          <!-- 4-Digit Mask Dots -->
+          <div class="flex gap-4 my-2">
+            <div id="pinDot0" class="w-4 h-4 rounded-full border-2 border-zinc-600 transition-all duration-200"></div>
+            <div id="pinDot1" class="w-4 h-4 rounded-full border-2 border-zinc-600 transition-all duration-200"></div>
+            <div id="pinDot2" class="w-4 h-4 rounded-full border-2 border-zinc-600 transition-all duration-200"></div>
+            <div id="pinDot3" class="w-4 h-4 rounded-full border-2 border-zinc-600 transition-all duration-200"></div>
+          </div>
+
+          <p id="pinErrorText" class="text-xs text-red-400 font-semibold h-4 opacity-0 transition-opacity">Senha incorreta. Tente novamente.</p>
+        </div>
+
+        <!-- Numeric On-Screen Keypad -->
+        <div class="pb-4 space-y-4">
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <button onclick="pressPinKey('1')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">1</button>
+            <button onclick="pressPinKey('2')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">2</button>
+            <button onclick="pressPinKey('3')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">3</button>
+            <button onclick="pressPinKey('4')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">4</button>
+            <button onclick="pressPinKey('5')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">5</button>
+            <button onclick="pressPinKey('6')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">6</button>
+            <button onclick="pressPinKey('7')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">7</button>
+            <button onclick="pressPinKey('8')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">8</button>
+            <button onclick="pressPinKey('9')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">9</button>
+            <button onclick="showToast('Qualquer senha de 4 dígitos é aceita no simulador')" class="py-3.5 bg-transparent text-xs text-zinc-500 font-medium">Dica</button>
+            <button onclick="pressPinKey('0')" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-xl font-bold text-white key-press transition-all">0</button>
+            <button onclick="backspacePinKey()" class="py-3.5 bg-nu-cardBg hover:bg-zinc-800 rounded-2xl text-lg text-zinc-300 key-press transition-all flex items-center justify-center">
+              <i class="fa-solid fa-delete-left"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="pixProcessingScreen" class="hidden absolute inset-0 bg-nu-purple z-50 flex flex-col items-center justify-center text-white p-6">
+        <div class="relative flex items-center justify-center mb-8">
+          <div class="w-24 h-24 border-4 border-white/20 border-t-white rounded-full animate-spin-slow"></div>
+          <svg class="w-10 h-10 text-white fill-current absolute" viewBox="0 0 24 24">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.18 15.632h-2.316v-5.118c0-1.288-.696-1.92-1.748-1.92-1.127 0-1.897.747-1.897 2.08v4.958H8.899V8.368h2.321v1.166c.618-.89 1.637-1.328 2.802-1.328 2.012 0 3.158 1.253 3.158 3.528v3.898z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">Processando Pix...</h3>
+        <p id="pixStatusText" class="text-white/80 text-sm text-center">Validando com o Banco Central...</p>
+      </section>
+
+      <section id="receiptModal" class="hidden absolute inset-0 bg-nu-deepDark z-50 flex flex-col">
+        <div class="p-4 flex items-center justify-between border-b border-zinc-800">
+          <button onclick="closeReceiptModal()" class="text-zinc-400 text-xl w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+          <span class="font-bold text-white text-base">Comprovante Pix</span>
+          <button onclick="showToast('Comprovante compartilhado')" class="text-nu-purple text-lg"><i class="fa-solid fa-share-nodes"></i></button>
+        </div>
+
+        <div class="p-6 flex-1 overflow-y-auto space-y-6">
+          <div class="text-center space-y-2 border-b border-zinc-800 pb-6">
+            <div class="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto text-2xl mb-3">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <p class="text-xs text-zinc-400 uppercase font-bold tracking-wider">Transferência Realizada</p>
+            <h2 id="receiptAmount" class="text-3xl font-extrabold text-white">R$ 150,00</h2>
+            <p id="receiptDate" class="text-xs text-zinc-400">12 OUT 2026 - 14:32:05</p>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between"><span class="text-zinc-400">Origem</span><span id="receiptPayerName" class="font-semibold text-white">Natan</span></div>
+            <div class="flex justify-between"><span class="text-zinc-400">Destinatário</span><span id="receiptDestName" class="font-semibold text-white">Maria Silva Santos</span></div>
+            <div class="flex justify-between"><span class="text-zinc-400">CPF</span><span id="receiptDestCpf" class="font-semibold text-white">***.458.912-**</span></div>
+            <div class="flex justify-between"><span class="text-zinc-400">Instituição</span><span id="receiptDestBank" class="font-semibold text-white">Itaú Unibanco S.A.</span></div>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-zinc-800">
+          <button onclick="closeReceiptModal()" class="w-full bg-nu-purple text-white font-bold py-3.5 rounded-full text-sm">Concluir</button>
+        </div>
+      </section>
+
+      <section id="editNameModal" class="hidden absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+        <div class="bg-nu-cardBg border border-zinc-800 p-6 rounded-3xl w-full max-w-xs space-y-4 shadow-2xl">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-base">Alterar Nome</h3>
+            <button onclick="closeEditNameModal()" class="text-zinc-400 text-lg"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <p class="text-xs text-zinc-400">Digite seu novo nome (será mantido o "Olá, [Seu Nome]"):</p>
+          <input type="text" id="newNameInput" placeholder="Seu nome" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-white text-sm font-bold focus:outline-none focus:border-nu-purple">
+          <div class="flex gap-2 pt-2">
+            <button onclick="closeEditNameModal()" class="w-1/2 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-2.5 rounded-xl text-xs">Cancelar</button>
+            <button onclick="saveNewName()" class="w-1/2 bg-nu-purple hover:bg-nu-darkPurple text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">Salvar</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="editBalanceModal" class="hidden absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+        <div class="bg-nu-cardBg border border-zinc-800 p-6 rounded-3xl w-full max-w-xs space-y-4 shadow-2xl">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-base">Alterar Saldo</h3>
+            <button onclick="closeEditBalanceModal()" class="text-zinc-400 text-lg"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <p class="text-xs text-zinc-400">Digite o novo valor para atualizar o saldo imediatamente:</p>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm font-bold">R$</span>
+            <input type="number" id="newBalanceInput" step="0.01" placeholder="2450.80" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-3 py-2.5 text-white text-sm font-bold focus:outline-none focus:border-nu-purple">
+          </div>
+          <div class="flex gap-2 pt-2">
+            <button onclick="closeEditBalanceModal()" class="w-1/2 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-2.5 rounded-xl text-xs">Cancelar</button>
+            <button onclick="saveNewBalance()" class="w-1/2 bg-nu-purple hover:bg-nu-darkPurple text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">Salvar</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="cardsModal" class="hidden absolute inset-0 bg-nu-deepDark z-50 flex flex-col">
+        <div class="p-4 flex items-center justify-between border-b border-zinc-800">
+          <button onclick="closeCardsModal()" class="text-zinc-400 text-xl w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
+          <span class="font-bold text-white text-base">Meus Cartões</span>
+          <div class="w-8"></div>
+        </div>
+        <div class="p-6 flex-1 overflow-y-auto space-y-4">
+          <div id="virtualCardsList" class="space-y-3">
+            <div class="bg-nu-cardBg p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-sm">Cartão Virtual Principal</p>
+                <p class="text-xs text-zinc-400">•••• 4109</p>
+              </div>
+              <button onclick="showToast('Número do cartão copiado!')" class="text-xs bg-nu-purple text-white px-3 py-1.5 rounded-full font-semibold">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="profileModal" class="hidden absolute inset-0 bg-nu-deepDark z-50 flex flex-col p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="font-bold text-white text-lg">Perfil</h3>
+          <button onclick="closeProfileModal()"><i class="fa-solid fa-xmark text-xl text-zinc-400"></i></button>
+        </div>
+        <button onclick="logout()" class="w-full bg-red-500/10 border border-red-500/20 text-red-400 font-bold py-3 rounded-xl">Sair da Conta</button>
+      </section>
+
+      <div id="toastNotification" class="fixed bottom-16 left-1/2 -translate-x-1/2 bg-zinc-900 border border-zinc-700 text-white px-5 py-3 rounded-full text-xs font-medium shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-info text-nu-purple"></i>
+        <span id="toastText">Notificação</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY_NAME = 'nubank_user_name';
+    const STORAGE_KEY_BALANCE = 'nubank_account_balance';
+    const STORAGE_KEY_LOGGED_IN = 'nubank_logged_in';
+    const STORAGE_KEY_TXS = 'nubank_transactions';
+    const SESSION_ACTIVE_KEY = 'nubank_active_session';
+
+    const defaultTransactions = [
+      { id: 1, title: 'Transferência enviada', dest: 'Maria Silva Santos', amount: -150.00, date: '12 OUT', cpf: '***.458.912-**', bank: 'Itaú Unibanco S.A.' },
+      { id: 2, title: 'Pix recebido', dest: 'Carlos Eduardo', amount: 500.00, date: '11 OUT', cpf: '***.991.203-**', bank: 'Nu Pagamentos S.A.' }
+    ];
+
+    let savedTxs = localStorage.getItem(STORAGE_KEY_TXS);
+
+    let state = {
+      userName: localStorage.getItem(STORAGE_KEY_NAME) || 'Natan',
+      userCpf: '123.456.789-00',
+      balance: localStorage.getItem(STORAGE_KEY_BALANCE) !== null 
+        ? parseFloat(localStorage.getItem(STORAGE_KEY_BALANCE)) 
+        : 2450.80,
+      isLoggedIn: localStorage.getItem(STORAGE_KEY_LOGGED_IN) === 'true',
+      isBalanceVisible: true,
+      transactions: savedTxs ? JSON.parse(savedTxs) : defaultTransactions,
+      currentPin: '',
+      pendingTransfer: null
+    };
+
+    function saveTransactionsToStorage() {
+      localStorage.setItem(STORAGE_KEY_TXS, JSON.stringify(state.transactions));
+    }
+
+    function maskCPF(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.substring(0, 11);
+      v = v.replace(/(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      input.value = v;
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('loginPasswordInput');
+      const icon = document.getElementById('passwordEyeIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    function formatCurrency(val) {
+      return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderName() {
+      const nameEl = document.getElementById('headerGreeting');
+      if (nameEl) {
+        nameEl.innerText = `Olá, ${state.userName}`;
+      }
+    }
+
+    function promptEditName() {
+      document.getElementById('newNameInput').value = state.userName;
+      document.getElementById('editNameModal').classList.remove('hidden');
+    }
+
+    function closeEditNameModal() {
+      document.getElementById('editNameModal').classList.add('hidden');
+    }
+
+    function saveNewName() {
+      const newName = document.getElementById('newNameInput').value.trim();
+      if (newName) {
+        state.userName = newName;
+        localStorage.setItem(STORAGE_KEY_NAME, newName);
+        renderName();
+        closeEditNameModal();
+        showToast('Nome alterado e salvo com sucesso!');
+      } else {
+        showToast('Por favor, digite um nome válido.');
+      }
+    }
+
+    function renderBalance() {
+      const balanceEl = document.getElementById('balanceValue');
+      const modalBalanceEl = document.getElementById('transferModalAvailableBalance');
+      
+      if (!state.isBalanceVisible) {
+        balanceEl.innerText = 'R$ •••••';
+      } else {
+        balanceEl.innerText = formatCurrency(state.balance);
+      }
+      if (modalBalanceEl) modalBalanceEl.innerText = formatCurrency(state.balance);
+    }
+
+    function promptEditBalance() {
+      document.getElementById('newBalanceInput').value = state.balance.toFixed(2);
+      document.getElementById('editBalanceModal').classList.remove('hidden');
+    }
+
+    function closeEditBalanceModal() {
+      document.getElementById('editBalanceModal').classList.add('hidden');
+    }
+
+    function saveNewBalance() {
+      const val = parseFloat(document.getElementById('newBalanceInput').value);
+      if (!isNaN(val) && val >= 0) {
+        state.balance = val;
+        localStorage.setItem(STORAGE_KEY_BALANCE, val.toString());
+        renderBalance();
+        closeEditBalanceModal();
+        showToast('Saldo alterado e salvo com sucesso!');
+      } else {
+        showToast('Por favor, digite um valor válido.');
+      }
+    }
+
+    function renderTransactions() {
+      const homeList = document.getElementById('homeTransactionList');
+      const fullList = document.getElementById('fullTransactionList');
+      homeList.innerHTML = '';
+      fullList.innerHTML = '';
+
+      state.transactions.forEach((tx) => {
+        const isNegative = tx.amount < 0;
+        const colorClass = isNegative ? 'text-white' : 'text-green-400 font-semibold';
+        const sign = isNegative ? '' : '+ ';
+
+        const itemHtml = `
+          <div onclick="showTransactionDetailsById(${tx.id})" class="flex items-center justify-between py-2 border-b border-zinc-800/60 last:border-0 cursor-pointer hover:bg-zinc-800/40 rounded-lg px-2 transition-all">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-300 text-sm">
+                <i class="fa-solid ${isNegative ? 'fa-arrow-up-from-bracket' : 'fa-arrow-down-left'}"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">${tx.title}</p>
+                <p class="text-xs text-zinc-400">${tx.dest}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm ${colorClass}">${sign}${formatCurrency(Math.abs(tx.amount))}</p>
+              <p class="text-[10px] text-zinc-500">${tx.date}</p>
+            </div>
+          </div>
+        `;
+        homeList.innerHTML += itemHtml;
+        fullList.innerHTML += itemHtml;
+      });
+    }
+
+    function toggleBalanceVisibility() {
+      state.isBalanceVisible = !state.isBalanceVisible;
+      const icon = document.getElementById('eyeIcon');
+      icon.className = state.isBalanceVisible ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+      renderBalance();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastText');
+      text.innerText = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 3000);
+    }
+
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+
+      // Detect if this execution is a page reload (F5 / Refresh)
+      const navEntries = performance.getEntriesByType("navigation");
+      const isReload = (navEntries.length > 0 && navEntries[0].type === 'reload') || 
+                      sessionStorage.getItem(SESSION_ACTIVE_KEY) === 'true';
+
+      if (isReload && state.isLoggedIn) {
+        // REFRESH / F5 INSIDE APP: Skip Splash and Login screens, show Dashboard directly
+        document.getElementById('splashScreen').classList.add('hidden');
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboardApp').classList.remove('hidden');
+        renderName();
+        renderBalance();
+        renderTransactions();
+      } else {
+        // NEW SESSION / FRESH TAB OPEN: Show Splash screen, transition to Login screen
+        sessionStorage.setItem(SESSION_ACTIVE_KEY, 'true');
+        const splash = document.getElementById('splashScreen');
+        splash.classList.remove('hidden');
+        
+        setTimeout(() => {
+          splash.classList.add('opacity-0');
+          setTimeout(() => {
+            splash.classList.add('hidden');
+            splash.classList.remove('opacity-0');
+            document.getElementById('loginScreen').classList.remove('hidden');
+          }, 500);
+        }, 1200);
+      }
+    });
+
+    function handleLogin() {
+      completeLogin();
+    }
+
+    function triggerFaceIDScan() {
+      const faceModal = document.getElementById('faceIdModal');
+      faceModal.classList.remove('hidden');
+      setTimeout(() => {
+        faceModal.classList.add('hidden');
+        completeLogin();
+      }, 1800);
+    }
+
+    function cancelFaceID() {
+      document.getElementById('faceIdModal').classList.add('hidden');
+    }
+
+    function completeLogin() {
+      state.isLoggedIn = true;
+      localStorage.setItem(STORAGE_KEY_LOGGED_IN, 'true');
+      sessionStorage.setItem(SESSION_ACTIVE_KEY, 'true');
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('dashboardApp').classList.remove('hidden');
+      renderName();
+      renderBalance();
+      renderTransactions();
+    }
+
+    function logout() {
+      state.isLoggedIn = false;
+      localStorage.setItem(STORAGE_KEY_LOGGED_IN, 'false');
+      sessionStorage.removeItem(SESSION_ACTIVE_KEY);
+      closeProfileModal();
+      document.getElementById('dashboardApp').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    function openPixArea() { document.getElementById('pixAreaModal').classList.remove('hidden'); }
+    function closePixArea() { document.getElementById('pixAreaModal').classList.add('hidden'); }
+    function openPixTransferModal() { closePixArea(); document.getElementById('pixTransferModal').classList.remove('hidden'); }
+    function closePixTransferModal() { document.getElementById('pixTransferModal').classList.add('hidden'); }
+    function openCardsModal() { document.getElementById('cardsModal').classList.remove('hidden'); }
+    function closeCardsModal() { document.getElementById('cardsModal').classList.add('hidden'); }
+    function openProfileModal() { document.getElementById('profileModal').classList.remove('hidden'); }
+    function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
+
+    function requestPixPassword() {
+      const rawAmt = document.getElementById('transferAmountInput').value;
+      const amt = parseFloat(rawAmt.replace('.', '').replace(',', '.'));
+
+      if (isNaN(amt) || amt <= 0) {
+        showToast('Por favor, informe um valor válido');
+        return;
+      }
+
+      if (amt > state.balance) {
+        showToast('Saldo insuficiente para esta transferência');
+        return;
+      }
+
+      state.pendingTransfer = {
+        amount: amt,
+        destName: document.getElementById('transferNameInput').value || 'Maria Silva Santos',
+        destCpf: document.getElementById('transferCpfInput').value || '***.458.912-**',
+        destBank: document.getElementById('transferBankInput').value || 'Itaú Unibanco S.A.'
+      };
+
+      document.getElementById('pinModalAmountText').innerText = formatCurrency(amt);
+      state.currentPin = '';
+      updatePinDotsUI();
+      document.getElementById('pinErrorText').classList.add('opacity-0');
+
+      closePixTransferModal();
+      document.getElementById('pixPinModal').classList.remove('hidden');
+    }
+
+    function cancelPixPin() {
+      document.getElementById('pixPinModal').classList.add('hidden');
+      state.pendingTransfer = null;
+      state.currentPin = '';
+    }
+
+    function pressPinKey(num) {
+      if (state.currentPin.length < 4) {
+        state.currentPin += num;
+        updatePinDotsUI();
+
+        if (state.currentPin.length === 4) {
+          setTimeout(() => {
+            executePixTransaction();
+          }, 200);
+        }
+      }
+    }
+
+    function backspacePinKey() {
+      if (state.currentPin.length > 0) {
+        state.currentPin = state.currentPin.slice(0, -1);
+        updatePinDotsUI();
+      }
+    }
+
+    function updatePinDotsUI() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`pinDot${i}`);
+        if (i < state.currentPin.length) {
+          dot.className = "w-4 h-4 rounded-full bg-nu-purple border-2 border-nu-purple transition-all duration-200 scale-110";
+        } else {
+          dot.className = "w-4 h-4 rounded-full border-2 border-zinc-600 transition-all duration-200";
+        }
+      }
+    }
+
+    function executePixTransaction() {
+      if (!state.pendingTransfer) return;
+
+      document.getElementById('pixPinModal').classList.add('hidden');
+      document.getElementById('pixProcessingScreen').classList.remove('hidden');
+
+      const tx = state.pendingTransfer;
+
+      setTimeout(() => {
+        state.balance -= tx.amount;
+        localStorage.setItem(STORAGE_KEY_BALANCE, state.balance.toString());
+
+        const newTx = {
+          id: Date.now(),
+          title: 'Transferência enviada',
+          dest: tx.destName,
+          amount: -tx.amount,
+          date: '12 OUT',
+          cpf: tx.destCpf,
+          bank: tx.destBank
+        };
+
+        state.transactions.unshift(newTx);
+        saveTransactionsToStorage();
+        renderBalance();
+        renderTransactions();
+
+        document.getElementById('pixProcessingScreen').classList.add('hidden');
+        showTransactionDetails(newTx);
+        state.pendingTransfer = null;
+        state.currentPin = '';
+      }, 2000);
+    }
+
+    function showTransactionDetailsById(id) {
+      const tx = state.transactions.find(t => t.id === id);
+      if (tx) showTransactionDetails(tx);
+    }
+
+    function showTransactionDetails(tx) {
+      document.getElementById('receiptAmount').innerText = formatCurrency(Math.abs(tx.amount));
+      document.getElementById('receiptPayerName').innerText = state.userName;
+      document.getElementById('receiptDestName').innerText = tx.dest;
+      document.getElementById('receiptDestCpf').innerText = tx.cpf || '***.000.000-**';
+      document.getElementById('receiptDestBank').innerText = tx.bank || 'Instituição';
+      document.getElementById('receiptModal').classList.remove('hidden');
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('receiptModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
